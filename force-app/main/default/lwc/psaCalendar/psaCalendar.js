@@ -33,23 +33,25 @@ export default class PsaCalendar extends LightningElement {
   getAssignments() {
     console.log('Fetching assignments from Apex...');
     fetchAllAssignments()
-      .then((result) => {
-        console.log('Assignments fetched:', result);
-        this.assignments = result.map((item) => {
-          return {
-            id: item.Id,
-            title: item.Name,
-            start: item.pse__Start_Date__c,
-            end: item.pse__End_date__c
-          };
+        .then((result) => {
+            console.log('Assignments fetched from Apex:', JSON.stringify(result, null, 2));
+            this.assignments = result.map((item) => {
+                console.log('Mapping record:', item);
+                return {
+                    id: item.Id,
+                    title: item.Name,
+                    start: item.pse__Start_Date__c ? new Date(item.pse__Start_Date__c).toISOString() : null,
+                    end: item.pse__End_date__c ? new Date(item.pse__End_date__c).toISOString() : null
+                };
+            }).filter((event) => event.start && event.end); // Ensure no null dates
+            console.log('Mapped events for FullCalendar:', JSON.stringify(this.assignments, null, 2));
+            this.initializeCalendar();
+        })
+        .catch((error) => {
+            console.error('Error fetching assignments from Apex:', error);
         });
-        console.log('Assignments processed for FullCalendar:', this.assignments);
-        this.initializeCalendar();
-      })
-      .catch((error) => {
-        console.error('Error fetching assignments from Apex:', error);
-      });
-  }
+ }
+
 
   initializeCalendar() {
     console.log('Initializing FullCalendarJS with events:', this.assignments);
