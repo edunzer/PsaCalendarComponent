@@ -1,66 +1,64 @@
 <template>
-    <lightning-card title="PSA Calendar" icon-name="standard:event">
+    <lightning-card variant="Narrow" title="Full Calendar" icon-name="standard:event">
       <div class="slds-grid">
         <div class="slds-m-around_small">
           <div id="calendar" class="fullcalendarjs"></div>
         </div>
       </div>
+  
+      <!-- Display the Selected Event Details -->
       <template if:true={selectedEvent}>
-        <section
-          role="dialog"
-          tabindex="-1"
-          class="slds-modal slds-fade-in-open slds-modal_small"
-          aria-labelledby="modal-heading-01"
-          aria-modal="true"
-          aria-describedby="modal-content-id-1"
-        >
+        <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open slds-modal_small"
+          aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1">
           <div class="slds-modal__container">
             <header class="slds-modal__header">
-              <h2 id="modal-heading-01" class="slds-modal__title slds-hyphenate">
-                Assignment Details
-              </h2>
+              <h2 id="modal-heading-01" class="slds-modal__title slds-hyphenate">Event Details</h2>
             </header>
-            <div
-              class="slds-modal__content slds-p-around_medium"
-              id="modal-content-id-1"
-            >
-              <lightning-card
-                title={selectedEvent.title}
-                icon-name="standard:event"
-              >
-                <p class="slds-p-horizontal_small">Name: {selectedEvent.title}</p>
+            <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+              <lightning-card variant="Narrow" title={selectedEvent.title} icon-name="standard:event">
                 <p class="slds-p-horizontal_small">
-                  Start Date:
-                  <lightning-formatted-date-time
-                    value={selectedEvent.start}
-                    year="numeric"
-                    month="short"
-                    day="2-digit"
-                    weekday="long"
-                  >
+                  Assignment Name: {selectedEvent.title}
+                </p>
+                <p class="slds-p-horizontal_small">
+                  Start Date: 
+                  <lightning-formatted-date-time value={selectedEvent.start} year="2-digit" month="short" day="2-digit" weekday="long">
                   </lightning-formatted-date-time>
                 </p>
                 <p class="slds-p-horizontal_small">
-                  End Date:
-                  <lightning-formatted-date-time
-                    value={selectedEvent.end}
-                    year="numeric"
-                    month="short"
-                    day="2-digit"
-                    weekday="long"
-                  >
+                  End Date: 
+                  <lightning-formatted-date-time value={selectedEvent.end} year="2-digit" month="short" day="2-digit" weekday="long">
                   </lightning-formatted-date-time>
                 </p>
               </lightning-card>
             </div>
             <footer class="slds-modal__footer">
-              <button class="slds-button slds-button_brand" onclick={closeModal}>
-                Close
-              </button>
+              <button class="slds-button slds-button_brand" onclick={closeModal}>Close</button>
             </footer>
           </div>
         </section>
         <div class="slds-backdrop slds-backdrop_open"></div>
+      </template>
+  
+      <!-- Display the Create Record Modal -->
+      <template if:true={createRecord}>
+        <div class="custom-modal">
+          <section role="dialog" class="slds-modal slds-fade-in-open">
+            <div class="slds-modal__container">
+              <header class="slds-modal__header">
+                <span class="slds-modal__close"></span>
+                <h2 class="slds-text-heading_medium slds-hyphenate">Create Event</h2>
+              </header>
+              <div class="slds-modal__content slds-p-around_medium">
+                Event Form Here
+              </div>
+              <footer class="slds-modal__footer">
+                <lightning-button label="Cancel" title="Cancel" onclick={createCancel} class="slds-m-right_small"></lightning-button>
+                <lightning-button variant="brand" label="Save" title="Save"></lightning-button>
+              </footer>
+            </div>
+          </section>
+          <div class="slds-backdrop slds-backdrop_open"></div>
+        </div>
       </template>
     </lightning-card>
   </template>
