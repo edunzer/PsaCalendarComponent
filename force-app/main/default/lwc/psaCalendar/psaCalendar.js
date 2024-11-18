@@ -35,80 +35,83 @@ export default class PsaCalendar extends LightningElement {
   fetchAndInitializeEvents() {
     console.log('Fetching assignments from Apex...');
     fetchAllAssignments()
-        .then((result) => {
-            console.log('Assignments fetched from Apex:', JSON.stringify(result, null, 2));
+      .then((result) => {
+        console.log('Assignments fetched from Apex:', JSON.stringify(result, null, 2));
 
-            // Map assignments to events
-            this.assignments = result.map((item) => {
-                const startDate = item.pse__Start_Date__c
-                    ? new Date(item.pse__Start_Date__c).toISOString()
-                    : null;
-                const endDate = item.pse__End_date__c
-                    ? new Date(item.pse__End_date__c).toISOString()
-                    : null;
+        // Map assignments to events
+        this.assignments = result.map((item) => {
+          const startDate = item.pse__Start_Date__c
+            ? new Date(item.pse__Start_Date__c).toISOString()
+            : null;
+          const endDate = item.pse__End_date__c
+            ? new Date(
+                new Date(item.pse__End_date__c).setDate(
+                  new Date(item.pse__End_date__c).getDate() + 1 // Add one day to include the full end day
+                )
+              ).toISOString()
+            : null;
 
-                console.log('Mapped item:', {
-                    id: item.Id,
-                    title: item.Name,
-                    start: startDate,
-                    end: endDate,
-                });
+          console.log('Mapped item:', {
+            id: item.Id,
+            title: item.Name,
+            start: startDate,
+            end: endDate,
+          });
 
-                return {
-                    id: item.Id,
-                    title: item.Name,
-                    start: startDate,
-                    end: endDate,
-                    allDay: true, // Ensures multi-day events are treated as all-day
-                };
-            });
-
-            console.log('Events before filtering:', this.assignments);
-
-            // Filter out events missing valid start or end dates
-            this.assignments = this.assignments.filter(
-                (event) => event.start && event.end
-            );
-
-            console.log('Events after filtering:', this.assignments);
-
-            // Initialize the calendar with valid events
-            this.initializeFullCalendar();
-        })
-        .catch((error) => {
-            console.error('Error fetching assignments from Apex:', error);
+          return {
+            id: item.Id,
+            title: item.Name,
+            start: startDate,
+            end: endDate,
+            allDay: true, // Ensures multi-day events are treated as all-day
+          };
         });
+
+        console.log('Events before filtering:', this.assignments);
+
+        // Filter out events missing valid start or end dates
+        this.assignments = this.assignments.filter(
+          (event) => event.start && event.end
+        );
+
+        console.log('Events after filtering:', this.assignments);
+
+        // Initialize the calendar with valid events
+        this.initializeFullCalendar();
+      })
+      .catch((error) => {
+        console.error('Error fetching assignments from Apex:', error);
+      });
+  }
+
+  initializeFullCalendar() {
+    console.log('Initializing FullCalendarJS with events:', this.assignments);
+    const calendarEl = this.template.querySelector('div.fullcalendarjs');
+
+    if (!calendarEl) {
+      console.error('Calendar container not found!');
+      return;
     }
 
-    initializeFullCalendar() {
-        console.log('Initializing FullCalendarJS with events:', this.assignments);
-        const calendarEl = this.template.querySelector('div.fullcalendarjs');
-
-        if (!calendarEl) {
-            console.error('Calendar container not found!');
-            return;
-        }
-
-        try {
-            $(calendarEl).fullCalendar({
-                header: {
-                    left: 'prev,next today',
-                    center: 'title',
-                    right: 'month,agendaWeek,agendaDay,listWeek',
-                },
-                themeSystem: 'standard',
-                defaultDate: new Date(), // Defaults to today’s date
-                navLinks: true, // Allow navigation by clicking on days/weeks
-                editable: false, // Disable drag-and-drop for events
-                eventLimit: true, // Limits number of events per day
-                events: this.assignments, // Assignments loaded from Apex
-                eventClick: (event) => this.handleEventClick(event),
-            });
-        } catch (error) {
-            console.error('Error initializing FullCalendarJS:', error);
-        }
+    try {
+      $(calendarEl).fullCalendar({
+        header: {
+          left: 'prev,next today',
+          center: 'title',
+          right: 'month,agendaWeek,agendaDay,listWeek',
+        },
+        themeSystem: 'standard',
+        defaultDate: new Date(), // Defaults to today’s date
+        navLinks: true, // Allow navigation by clicking on days/weeks
+        editable: false, // Disable drag-and-drop for events
+        eventLimit: true, // Limits number of events per day
+        events: this.assignments, // Assignments loaded from Apex
+        eventClick: (event) => this.handleEventClick(event),
+      });
+    } catch (error) {
+      console.error('Error initializing FullCalendarJS:', error);
     }
-
+  }
 
   handleEventClick(event) {
     console.log('Event clicked:', event);
