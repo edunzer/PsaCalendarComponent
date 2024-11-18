@@ -38,16 +38,18 @@ export default class PsaCalendar extends LightningElement {
         .then((result) => {
             console.log('Assignments fetched from Apex:', JSON.stringify(result, null, 2));
             this.assignments = result.map((item) => {
+                console.log('Processing item:', item);
                 return {
                     id: item.Id,
                     title: item.Name,
-                    start: item.pse__Start_Date__c,
-                    end: item.pse__End_date__c, // Map the end date correctly
-                    allDay: true, // Ensures multi-day events are handled
+                    start: item.pse__Start_Date__c, // Start date
+                    end: item.pse__End_date__c, // End date
+                    allDay: true, // Multi-day events
                 };
             });
-
-            console.log('Mapped events for FullCalendar:', JSON.stringify(this.assignments, null, 2));
+            console.log('Events before filtering:', this.assignments);
+            this.assignments = this.assignments.filter(event => event.start && event.end);
+            console.log('Events after filtering:', this.assignments);
             this.initializeFullCalendar();
         })
         .catch((error) => {
