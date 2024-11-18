@@ -4,7 +4,7 @@ public with sharing class PsaCalendarService {
         try {
             System.debug('Fetching assignments from pse__Assignment__c');
             List<pse__Assignment__c> assignments = [
-                SELECT Id, Name, pse__Start_Date__c, pse__End_date__c
+                SELECT Id, Name, pse__Start_Date__c, pse__End_date__c, pse__Resource__r.Name, pse__Project__r.Name
                 FROM pse__Assignment__c
                 WHERE pse__Start_Date__c != null AND pse__End_Date__c != null AND pse__Project__r.Name = 'Global Time Off Project' AND Name LIKE '%Ethan%'
                 LIMIT 1000
