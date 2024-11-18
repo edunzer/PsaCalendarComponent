@@ -43,32 +43,38 @@ export default class PsaCalendar extends LightningElement {
 
     prepareEvents() {
         this.allEvents = this.assignments.map(assignment => {
+            const startDate = assignment.pse__Start_Date__c; // Original start date
+            const endDate = assignment.pse__End_Date__c;     // Original end date
+
+            // Add one day to endDate for the exclusive end date
+            const dateParts = endDate.split('-');
+            const date = new Date(dateParts[0], dateParts[1] - 1, dateParts[2]);
+            date.setDate(date.getDate() + 1);
+            const formattedEndDate = date.toISOString().split('T')[0]; // 'YYYY-MM-DD'
+
             return {
                 id: assignment.Id,
                 title: assignment.Name,
-                start: assignment.pse__Start_Date__c,
-                end: this.getExclusiveEndDate(assignment.pse__End_Date__c),
+                start: startDate,            // Use the date string directly
+                end: formattedEndDate,       // Exclusive end date
                 allDay: true,
                 description: assignment.Description__c || '',
                 extendedProps: {
-                    resourceName: assignment.pse__Resource__r.Name,
-                    projectName: assignment.pse__Project__r.Name
+                    resourceName: assignment.pse__Resource__r ? assignment.pse__Resource__r.Name : '',
+                    projectName: assignment.pse__Project__r ? assignment.pse__Project__r.Name : '',
+                    originalStartDate: startDate, // Include original start date
+                    originalEndDate: endDate      // Include original end date
                 }
             };
         });
         this.initialiseFullCalendarJs();
     }
 
-    getExclusiveEndDate(endDate) {
-        let date = new Date(endDate);
-        date.setDate(date.getDate() + 1);
-        return date.toISOString().split('T')[0];
-    }
-
     initialiseFullCalendarJs() {
         const ele = this.template.querySelector('.fullcalendarjs');
         // eslint-disable-next-line no-undef
         $(ele).fullCalendar({
+            timezone: 'none',
             header: {
                 left: 'prev,next today',
                 center: 'title',
@@ -85,13 +91,21 @@ export default class PsaCalendar extends LightningElement {
     }
 
     eventClickHandler(event, jsEvent, view) {
+        const extendedProps = event.extendedProps || {};
+        const startDateStr = extendedProps.originalStartDate || '';
+        const endDateStr = extendedProps.originalEndDate || '';
+
+        // Append 'T00:00:00Z' to specify midnight UTC
+        const startDate = startDateStr ? startDateStr + 'T00:00:00Z' : '';
+        const endDate = endDateStr ? endDateStr + 'T00:00:00Z' : '';
+
         this.selectedEvent = {
             title: event.title,
-            start: event.start ? event.start.toISOString() : '',
-            end: event.end ? event.end.toISOString() : '',
+            start: startDate,
+            end: endDate,
             description: event.description || '',
-            resourceName: event.extendedProps.resourceName || '',
-            projectName: event.extendedProps.projectName || ''
+            resourceName: extendedProps.resourceName || '',
+            projectName: extendedProps.projectName || ''
         };
     }
 
