@@ -35,9 +35,7 @@ export default class PsaCalendar extends LightningElement {
     console.log('Fetching assignments from Apex...');
     fetchAllAssignments()
       .then((result) => {
-        console.log('Assignments fetched from Apex:', JSON.stringify(result, null, 2));
         this.assignments = result.map((item) => {
-          console.log('Mapping record:', item);
           return {
             id: item.Id,
             title: item.Name,
