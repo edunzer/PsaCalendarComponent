@@ -37,19 +37,42 @@ export default class PsaCalendar extends LightningElement {
     fetchAllAssignments()
         .then((result) => {
             console.log('Assignments fetched from Apex:', JSON.stringify(result, null, 2));
+
+            // Map assignments to events
             this.assignments = result.map((item) => {
-                console.log('Processing item:', item);
+                const startDate = item.pse__Start_Date__c
+                    ? new Date(item.pse__Start_Date__c).toISOString()
+                    : null;
+                const endDate = item.pse__End_date__c
+                    ? new Date(item.pse__End_date__c).toISOString()
+                    : null;
+
+                console.log('Mapped item:', {
+                    id: item.Id,
+                    title: item.Name,
+                    start: startDate,
+                    end: endDate,
+                });
+
                 return {
                     id: item.Id,
                     title: item.Name,
-                    start: item.pse__Start_Date__c, // Start date
-                    end: item.pse__End_date__c, // End date
-                    allDay: true, // Multi-day events
+                    start: startDate,
+                    end: endDate,
+                    allDay: true, // Ensures multi-day events are treated as all-day
                 };
             });
+
             console.log('Events before filtering:', this.assignments);
-            this.assignments = this.assignments.filter(event => event.start && event.end);
+
+            // Filter out events missing valid start or end dates
+            this.assignments = this.assignments.filter(
+                (event) => event.start && event.end
+            );
+
             console.log('Events after filtering:', this.assignments);
+
+            // Initialize the calendar with valid events
             this.initializeFullCalendar();
         })
         .catch((error) => {
