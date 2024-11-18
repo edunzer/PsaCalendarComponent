@@ -1,0 +1,67 @@
+<template>
+    <lightning-card title="PSA Calendar" icon-name="standard:event">
+      <div class="slds-grid">
+        <div class="slds-m-around_small">
+          <div id="calendar" class="fullcalendarjs"></div>
+        </div>
+      </div>
+      <template if:true={selectedEvent}>
+        <section
+          role="dialog"
+          tabindex="-1"
+          class="slds-modal slds-fade-in-open slds-modal_small"
+          aria-labelledby="modal-heading-01"
+          aria-modal="true"
+          aria-describedby="modal-content-id-1"
+        >
+          <div class="slds-modal__container">
+            <header class="slds-modal__header">
+              <h2 id="modal-heading-01" class="slds-modal__title slds-hyphenate">
+                Assignment Details
+              </h2>
+            </header>
+            <div
+              class="slds-modal__content slds-p-around_medium"
+              id="modal-content-id-1"
+            >
+              <lightning-card
+                title={selectedEvent.title}
+                icon-name="standard:event"
+              >
+                <p class="slds-p-horizontal_small">Name: {selectedEvent.title}</p>
+                <p class="slds-p-horizontal_small">
+                  Start Date:
+                  <lightning-formatted-date-time
+                    value={selectedEvent.start}
+                    year="numeric"
+                    month="short"
+                    day="2-digit"
+                    weekday="long"
+                  >
+                  </lightning-formatted-date-time>
+                </p>
+                <p class="slds-p-horizontal_small">
+                  End Date:
+                  <lightning-formatted-date-time
+                    value={selectedEvent.end}
+                    year="numeric"
+                    month="short"
+                    day="2-digit"
+                    weekday="long"
+                  >
+                  </lightning-formatted-date-time>
+                </p>
+              </lightning-card>
+            </div>
+            <footer class="slds-modal__footer">
+              <button class="slds-button slds-button_brand" onclick={closeModal}>
+                Close
+              </button>
+            </footer>
+          </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+      </template>
+    </lightning-card>
+  </template>
+  
