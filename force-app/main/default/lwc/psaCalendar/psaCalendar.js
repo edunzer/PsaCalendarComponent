@@ -1,9 +1,10 @@
-import { LightningElement, track } from 'lwc';
+import { LightningElement, api, track } from 'lwc';
 import { loadScript, loadStyle } from 'lightning/platformResourceLoader';
 import FullCalendarJS from '@salesforce/resourceUrl/FullCalendarJS';
 import fetchAllAssignments from '@salesforce/apex/PsaCalendarService.fetchAllAssignments';
 
 export default class PsaCalendar extends LightningElement {
+    @api projectName; // Public property to accept project name
     @track assignments = [];
     @track allEvents = [];
     @track selectedEvent;
@@ -31,7 +32,7 @@ export default class PsaCalendar extends LightningElement {
     }
 
     fetchAssignments() {
-        fetchAllAssignments()
+        fetchAllAssignments({ projectName: this.projectName })
             .then(result => {
                 this.assignments = result;
                 this.prepareEvents();
