@@ -6,7 +6,7 @@ public with sharing class PsaCalendarService {
             List<pse__Assignment__c> assignments = [
                 SELECT Id, Name, pse__Start_Date__c, pse__End_date__c
                 FROM pse__Assignment__c
-                WHERE pse__Start_Date__c != null AND pse__End_Date__c != null AND pse__Project__r.Name = 'Global Time Off Project'
+                WHERE pse__Start_Date__c != null AND pse__End_Date__c != null AND pse__Project__r.Name = 'Global Time Off Project' AND Name LIKE '%Ethan%'
                 LIMIT 1000
             ];
             for (pse__Assignment__c assignment : assignments) {
