@@ -6,9 +6,12 @@ public with sharing class PsaCalendarService {
             List<pse__Assignment__c> assignments = [
                 SELECT Id, Name, pse__Start_Date__c, pse__End_date__c
                 FROM pse__Assignment__c
+                WHERE pse__Start_Date__c != null AND pse__End_Date__c != null 
                 LIMIT 100
             ];
-            System.debug('Assignments fetched: ' + assignments);
+            for (pse__Assignment__c assignment : assignments) {
+                System.debug('Assignment: ' + assignment.Name + ', Start Date: ' + assignment.pse__Start_Date__c + ', End Date: ' + assignment.pse__End_date__c);
+            }
             return assignments;
         } catch (Exception e) {
             System.debug('Error while fetching assignments: ' + e.getMessage());
