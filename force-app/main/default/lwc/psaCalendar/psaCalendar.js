@@ -23,7 +23,6 @@ export default class PsaCalendar extends LightningElement {
             loadStyle(this, FullCalendarJS + '/fullcalendar.min.css')
         ])
         .then(() => {
-            // Initialize the calendar after scripts are loaded
             this.fetchAssignments();
         })
         .catch(error => {
@@ -48,10 +47,13 @@ export default class PsaCalendar extends LightningElement {
                 id: assignment.Id,
                 title: assignment.Name,
                 start: assignment.pse__Start_Date__c,
-                // Adjust end date to be exclusive if necessary
                 end: this.getExclusiveEndDate(assignment.pse__End_Date__c),
                 allDay: true,
-                description: assignment.Description__c || ''
+                description: assignment.Description__c || '',
+                extendedProps: {
+                    resourceName: assignment.pse__Resource__r.Name,
+                    projectName: assignment.pse__Project__r.Name
+                }
             };
         });
         this.initialiseFullCalendarJs();
@@ -83,12 +85,13 @@ export default class PsaCalendar extends LightningElement {
     }
 
     eventClickHandler(event, jsEvent, view) {
-        // Prepare selected event data for display
         this.selectedEvent = {
             title: event.title,
             start: event.start ? event.start.toISOString() : '',
             end: event.end ? event.end.toISOString() : '',
-            description: event.description || ''
+            description: event.description || '',
+            resourceName: event.extendedProps.resourceName || '',
+            projectName: event.extendedProps.projectName || ''
         };
     }
 
