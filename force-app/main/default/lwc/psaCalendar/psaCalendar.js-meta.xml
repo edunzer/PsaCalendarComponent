@@ -7,4 +7,15 @@
         <target>lightning__RecordPage</target>
         <target>lightning__HomePage</target>
     </targets>
+    <targetConfigs>
+        <targetConfig targets="lightning__AppPage, lightning__RecordPage, lightning__HomePage">
+            <property
+                name="projectName"
+                type="String"
+                label="Project Name"
+                description="Enter the name of the project to filter assignments."
+                required="false"
+            />
+        </targetConfig>
+    </targetConfigs>
 </LightningComponentBundle>
