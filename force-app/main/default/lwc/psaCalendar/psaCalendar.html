@@ -5,7 +5,7 @@
           <div id="calendar" class="fullcalendarjs"></div>
         </div>
       </div>
-  
+
       <!-- Display the Selected Event Details -->
       <template if:true={selectedEvent}>
         <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open slds-modal_small"
@@ -23,15 +23,27 @@
                     Project Name: {selectedEvent.projectName}
                 </p>
                 <p class="slds-p-horizontal_small">
-                  Start Date: 
-                  <lightning-formatted-date-time value={selectedEvent.start} year="2-digit" month="short" day="2-digit" weekday="long">
-                  </lightning-formatted-date-time>
-                </p>
-                <p class="slds-p-horizontal_small">
-                  End Date: 
-                  <lightning-formatted-date-time value={selectedEvent.end} year="2-digit" month="short" day="2-digit" weekday="long">
-                  </lightning-formatted-date-time>
-                </p>
+                    Start Date:
+                    <lightning-formatted-date-time 
+                        value={selectedEvent.start} 
+                        year="numeric" 
+                        month="long" 
+                        day="2-digit" 
+                        weekday="long"
+                        time-zone="UTC">
+                    </lightning-formatted-date-time>
+                  </p>
+                  <p class="slds-p-horizontal_small">
+                    End Date:
+                    <lightning-formatted-date-time 
+                        value={selectedEvent.end} 
+                        year="numeric" 
+                        month="long" 
+                        day="2-digit" 
+                        weekday="long"
+                        time-zone="UTC">
+                    </lightning-formatted-date-time>
+                  </p>                  
               </lightning-card>
             </div>
             <footer class="slds-modal__footer">
@@ -41,7 +53,7 @@
         </section>
         <div class="slds-backdrop slds-backdrop_open"></div>
       </template>
-  
+
       <!-- Display the Create Record Modal -->
       <template if:true={createRecord}>
         <div class="custom-modal">
@@ -64,5 +76,4 @@
         </div>
       </template>
     </lightning-card>
-  </template>
-  
+</template>
