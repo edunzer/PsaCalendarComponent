@@ -1,20 +1,21 @@
 public with sharing class PsaCalendarService {
-    @AuraEnabled
-    public static List<pse__Assignment__c> fetchAllAssignments() {
+    @AuraEnabled(cacheable=true)
+    public static List<pse__Assignment__c> fetchAllAssignments(String projectName) {
         try {
-            System.debug('Fetching assignments from pse__Assignment__c');
+            // Use the provided projectName or a default value if null
+            String projectFilter = String.isBlank(projectName) ? 'Global Time Off Project' : projectName;
+            
             List<pse__Assignment__c> assignments = [
-                SELECT Id, Name, pse__Start_Date__c, pse__End_date__c, pse__Resource__r.Name, pse__Project__r.Name
+                SELECT Id, Name, pse__Start_Date__c, pse__End_Date__c, 
+                       pse__Resource__r.Name, pse__Project__r.Name
                 FROM pse__Assignment__c
-                WHERE pse__Start_Date__c != null AND pse__End_Date__c != null AND pse__Project__r.Name = 'Global Time Off Project' AND Name LIKE '%Ethan%'
+                WHERE pse__Start_Date__c != null 
+                  AND pse__End_Date__c != null 
+                  AND pse__Project__r.Name = :projectFilter
                 LIMIT 1000
             ];
-            for (pse__Assignment__c assignment : assignments) {
-                System.debug('Assignment: ' + assignment.Name + ', Start Date: ' + assignment.pse__Start_Date__c + ', End Date: ' + assignment.pse__End_date__c);
-            }
             return assignments;
         } catch (Exception e) {
-            System.debug('Error while fetching assignments: ' + e.getMessage());
             throw new AuraHandledException('Unable to fetch assignments. Please contact admin.');
         }
     }
