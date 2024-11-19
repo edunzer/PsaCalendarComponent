@@ -2,6 +2,7 @@ import { LightningElement, track, api } from 'lwc';
 import { loadScript, loadStyle } from 'lightning/platformResourceLoader';
 import FullCalendarJS from '@salesforce/resourceUrl/FullCalendarJS';
 import fetchAllAssignments from '@salesforce/apex/PsaCalendarService.fetchAllAssignments';
+import getPicklistValues from '@salesforce/apex/PsaCalendarService.getPicklistValues';
 
 export default class PsaCalendar extends LightningElement {
     @api projectName;
@@ -15,6 +16,28 @@ export default class PsaCalendar extends LightningElement {
     @track selectedRegionId = null;
     @track selectedPracticeId = null;
     @track selectedGroupId = null;
+    @track selectedReportsToId = null;
+    @track selectedSubCategory = null;
+    @track selectedRole = null;
+
+    @track subCategoryOptions = [];
+    @track roleOptions = [];
+
+    connectedCallback() {
+        // Fetch picklist options for Sub-Category and Role
+        this.fetchPicklistOptions('pse__Assignment__c', 'Sub_category_picklist__c', 'subCategoryOptions');
+        this.fetchPicklistOptions('pse__Assignment__c', 'pse__Role__c', 'roleOptions');
+    }
+
+    fetchPicklistOptions(objectName, fieldName, targetProperty) {
+        getPicklistValues({ objectName, fieldName })
+            .then(result => {
+                this[targetProperty] = result.map(value => ({ label: value, value }));
+            })
+            .catch(error => {
+                console.error(`Error fetching picklist values for ${fieldName}:`, error);
+            });
+    }
 
     resourceFilter = {
         criteria: [
@@ -51,18 +74,20 @@ export default class PsaCalendar extends LightningElement {
     }
 
     fetchAssignments() {
-
         fetchAllAssignments({
             projectName: this.projectName,
             resourceId: this.selectedResourceId,
             regionId: this.selectedRegionId,
             practiceId: this.selectedPracticeId,
-            groupId: this.selectedGroupId
+            groupId: this.selectedGroupId,
+            reportsToId: this.selectedReportsToId,
+            subCategory: this.selectedSubCategory,
+            role: this.selectedRole
         })
             .then(result => {
                 this.assignments = result;
-                this.prepareEvents(); // Prepare events from the fetched data
-                this.initialiseFullCalendarJs(); // Re-initialize the calendar with new events
+                this.prepareEvents();
+                this.initialiseFullCalendarJs();
             })
             .catch(error => {
                 console.error('Error fetching assignments', error);
@@ -161,6 +186,18 @@ export default class PsaCalendar extends LightningElement {
         this.selectedGroupId = event.detail.recordId;
     }
 
+    handleReportsToChange(event) {
+        this.selectedReportsToId = event.detail.recordId;
+    }
+
+    handleSubCategoryChange(event) {
+        this.selectedSubCategory = event.detail.value;
+    }
+
+    handleRoleChange(event) {
+        this.selectedRole = event.detail.value;
+    }
+
     // Apply Filters Button
     applyFilters() {
         this.fetchAssignments();
@@ -168,32 +205,33 @@ export default class PsaCalendar extends LightningElement {
 
     // Clear Filters Button
     clearFilters() {
-
-        // Clear selected IDs
         this.selectedResourceId = null;
         this.selectedRegionId = null;
         this.selectedPracticeId = null;
         this.selectedGroupId = null;
+        this.selectedReportsToId = null;
+        this.selectedSubCategory = null;
+        this.selectedRole = null;
 
-        // Use clearSelection method on each lightning-record-picker
-        const resourcePicker = this.template.querySelector('[data-id="resourcePicker"]');
-        const regionPicker = this.template.querySelector('[data-id="regionPicker"]');
-        const practicePicker = this.template.querySelector('[data-id="practicePicker"]');
-        const groupPicker = this.template.querySelector('[data-id="groupPicker"]');
+        const pickers = ['resourcePicker', 'regionPicker', 'practicePicker', 'groupPicker', 'reportsToPicker'];
+        pickers.forEach(picker => {
+            const element = this.template.querySelector(`[data-id="${picker}"]`);
+            if (element) {
+                element.clearSelection();
+            }
+        });
 
-        if (resourcePicker) {
-            resourcePicker.clearSelection();
+        // Clear the values of the comboboxes
+        const subCategoryComboBox = this.template.querySelector('[data-id="subCategoryComboBox"]');
+        const roleComboBox = this.template.querySelector('[data-id="roleComboBox"]');
+
+        if (subCategoryComboBox) {
+            subCategoryComboBox.value = null;
         }
-        if (regionPicker) {
-            regionPicker.clearSelection();
+        if (roleComboBox) {
+            roleComboBox.value = null;
         }
-        if (practicePicker) {
-            practicePicker.clearSelection();
-        }
-        if (groupPicker) {
-            groupPicker.clearSelection();
-        }
-        // Fetch all assignments without filters
+
         this.fetchAssignments();
     }
 }
