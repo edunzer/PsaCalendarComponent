@@ -1,118 +1,142 @@
 <template>
-    <lightning-card variant="Narrow" title="Full Calendar" icon-name="standard:event">
-      
+  <lightning-card variant="Narrow" title="Full Calendar" icon-name="standard:event">
       <div class="slds-grid slds-wrap slds-m-around_small">
-        <!-- Calendar Section -->
-        <div class="slds-col slds-size_10-of-12" style="width: 85%;">
-            <div id="calendar" class="fullcalendarjs"></div>
-        </div>
+          <!-- Calendar Section -->
+          <div class="slds-col slds-size_10-of-12" style="width: 85%;">
+              <div id="calendar" class="fullcalendarjs"></div>
+          </div>
 
-        <!-- Filters Section -->
-        <div class="slds-col slds-size_2-of-12" style="width: 15%;">
-            <div class="slds-p-around_small">
-              <lightning-record-picker
-                  key={resourcePickerKey}
-                  label="Resource"
-                  placeholder="Search Resources..."
-                  object-api-name="Contact"
-                  filter={resourceFilter}
-                  display-info={displayInfoResource}
-                  onchange={handleResourceChange}
-                  data-id="resourcePicker">
-              </lightning-record-picker>
+          <!-- Filters Section -->
+          <div class="slds-col slds-size_2-of-12" style="width: 15%;">
+              <div class="slds-p-around_small">
+                  <lightning-record-picker
+                      key={resourcePickerKey}
+                      label="Resource"
+                      placeholder="Search Resources..."
+                      object-api-name="Contact"
+                      filter={resourceFilter}
+                      display-info={displayInfoResource}
+                      onchange={handleResourceChange}
+                      data-id="resourcePicker">
+                  </lightning-record-picker>
 
-              <lightning-record-picker
-                  key={regionPickerKey}
-                  label="Region"
-                  placeholder="Search Regions..."
-                  object-api-name="pse__Region__c"
-                  onchange={handleRegionChange}
-                  data-id="regionPicker">
-              </lightning-record-picker>
+                  <lightning-record-picker
+                      key={regionPickerKey}
+                      label="Region"
+                      placeholder="Search Regions..."
+                      object-api-name="pse__Region__c"
+                      onchange={handleRegionChange}
+                      data-id="regionPicker">
+                  </lightning-record-picker>
 
-              <lightning-record-picker
-                  key={practicePickerKey}
-                  label="Practice"
-                  placeholder="Search Practices..."
-                  object-api-name="pse__Practice__c"
-                  onchange={handlePracticeChange}
-                  data-id="practicePicker">
-              </lightning-record-picker>
+                  <lightning-record-picker
+                      key={practicePickerKey}
+                      label="Practice"
+                      placeholder="Search Practices..."
+                      object-api-name="pse__Practice__c"
+                      onchange={handlePracticeChange}
+                      data-id="practicePicker">
+                  </lightning-record-picker>
 
-              <lightning-record-picker
-                  key={groupPickerKey}
-                  label="Group"
-                  placeholder="Search Groups..."
-                  object-api-name="pse__Grp__c"
-                  onchange={handleGroupChange}
-                  data-id="groupPicker">
-              </lightning-record-picker>
-              
-                <!-- Buttons -->
-                <div class="slds-m-top_medium">
-                    <lightning-button
-                        label="Apply Filters"
-                        variant="brand"
-                        onclick={applyFilters}>
-                    </lightning-button>
-                    <lightning-button
-                        label="Clear Filters"
-                        variant="neutral"
-                        onclick={clearFilters}
-                        class="slds-m-top_x-small">
-                    </lightning-button>
-                </div>
-            </div>
-        </div>
-    </div>
+                  <lightning-record-picker
+                      key={groupPickerKey}
+                      label="Group"
+                      placeholder="Search Groups..."
+                      object-api-name="pse__Grp__c"
+                      onchange={handleGroupChange}
+                      data-id="groupPicker">
+                  </lightning-record-picker>
+
+                  <lightning-record-picker
+                      key={reportsToPickerKey}
+                      label="Reports To"
+                      placeholder="Search Contacts..."
+                      object-api-name="Contact"
+                      onchange={handleReportsToChange}
+                      data-id="reportsToPicker">
+                  </lightning-record-picker>
+
+                  <lightning-combobox
+                      data-id="subCategoryComboBox"
+                      label="Sub-Category"
+                      placeholder="Select Sub-Category"
+                      options={subCategoryOptions}
+                      onchange={handleSubCategoryChange}>
+                  </lightning-combobox>
+
+                  <lightning-combobox
+                      data-id="roleComboBox"
+                      label="Role"
+                      placeholder="Select Role"
+                      options={roleOptions}
+                      onchange={handleRoleChange}>
+                  </lightning-combobox>
+
+
+                  <!-- Buttons -->
+                  <div class="slds-m-top_medium">
+                      <lightning-button
+                          label="Apply Filters"
+                          variant="brand"
+                          onclick={applyFilters}>
+                      </lightning-button>
+                      <lightning-button
+                          label="Clear Filters"
+                          variant="neutral"
+                          onclick={clearFilters}
+                          class="slds-m-top_x-small">
+                      </lightning-button>
+                  </div>
+              </div>
+          </div>
+      </div>
 
       <!-- Display the Selected Event Details -->
       <template if:true={selectedEvent}>
-        <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open slds-modal_small"
-          aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1">
-          <div class="slds-modal__container">
-            <header class="slds-modal__header">
-              <h2 id="modal-heading-01" class="slds-modal__title slds-hyphenate">Event Details</h2>
-            </header>
-            <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
-              <lightning-card variant="Narrow" title={selectedEvent.title} icon-name="standard:event">
-                <p class="slds-p-horizontal_small">
-                    Resource Name: {selectedEvent.resourceName}
-                </p>
-                <p class="slds-p-horizontal_small">
-                    Project Name: {selectedEvent.projectName}
-                </p>
-                <p class="slds-p-horizontal_small">
-                    Start Date:
-                    <lightning-formatted-date-time 
-                        value={selectedEvent.start} 
-                        year="numeric" 
-                        month="long" 
-                        day="2-digit" 
-                        weekday="long"
-                        time-zone="UTC">
-                    </lightning-formatted-date-time>
-                  </p>
-                  <p class="slds-p-horizontal_small">
-                    End Date:
-                    <lightning-formatted-date-time 
-                        value={selectedEvent.end} 
-                        year="numeric" 
-                        month="long" 
-                        day="2-digit" 
-                        weekday="long"
-                        time-zone="UTC">
-                    </lightning-formatted-date-time>
-                  </p>                  
-              </lightning-card>
-            </div>
-            <footer class="slds-modal__footer">
-              <button class="slds-button slds-button_brand" onclick={closeModal}>Close</button>
-            </footer>
-          </div>
-        </section>
-        <div class="slds-backdrop slds-backdrop_open"></div>
+          <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open slds-modal_small"
+              aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1">
+              <div class="slds-modal__container">
+                  <header class="slds-modal__header">
+                      <h2 id="modal-heading-01" class="slds-modal__title slds-hyphenate">Event Details</h2>
+                  </header>
+                  <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+                      <lightning-card variant="Narrow" title={selectedEvent.title} icon-name="standard:event">
+                          <p class="slds-p-horizontal_small">
+                              Resource Name: {selectedEvent.resourceName}
+                          </p>
+                          <p class="slds-p-horizontal_small">
+                              Project Name: {selectedEvent.projectName}
+                          </p>
+                          <p class="slds-p-horizontal_small">
+                              Start Date:
+                              <lightning-formatted-date-time 
+                                  value={selectedEvent.start} 
+                                  year="numeric" 
+                                  month="long" 
+                                  day="2-digit" 
+                                  weekday="long"
+                                  time-zone="UTC">
+                              </lightning-formatted-date-time>
+                          </p>
+                          <p class="slds-p-horizontal_small">
+                              End Date:
+                              <lightning-formatted-date-time 
+                                  value={selectedEvent.end} 
+                                  year="numeric" 
+                                  month="long" 
+                                  day="2-digit" 
+                                  weekday="long"
+                                  time-zone="UTC">
+                              </lightning-formatted-date-time>
+                          </p>                  
+                      </lightning-card>
+                  </div>
+                  <footer class="slds-modal__footer">
+                      <button class="slds-button slds-button_brand" onclick={closeModal}>Close</button>
+                  </footer>
+              </div>
+          </section>
+          <div class="slds-backdrop slds-backdrop_open"></div>
       </template>
-
-    </lightning-card>
+  </lightning-card>
 </template>
