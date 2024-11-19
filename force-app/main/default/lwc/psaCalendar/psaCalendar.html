@@ -2,95 +2,110 @@
   <lightning-card variant="Narrow" title="Full Calendar" icon-name="standard:event">
       <div class="slds-grid slds-wrap slds-m-around_small">
           <!-- Calendar Section -->
-          <div class="slds-col slds-size_10-of-12" style="width: 85%;">
-              <div id="calendar" class="fullcalendarjs"></div>
+          <div class={calendarClass} style={calendarStyle}>
+            <div id="calendar" class="fullcalendarjs"></div>
           </div>
 
-          <!-- Filters Section -->
-          <div class="slds-col slds-size_2-of-12" style="width: 15%;">
-              <div class="slds-p-around_small">
-                  <lightning-record-picker
-                      key={resourcePickerKey}
-                      label="Resource"
-                      placeholder="Search Resources..."
-                      object-api-name="Contact"
-                      filter={resourceFilter}
-                      display-info={displayInfoResource}
-                      onchange={handleResourceChange}
-                      data-id="resourcePicker">
-                  </lightning-record-picker>
+           <!-- Filters Section -->
+           <template if:true={showFilters}>
+            <div class="slds-col slds-size_2-of-12" style="width: 15%;">
+                <div class="slds-p-around_small">
+                    <template if:true={showResourceFilter}>
+                        <lightning-record-picker
+                            key={resourcePickerKey}
+                            label="Resource"
+                            placeholder="Search Resources..."
+                            object-api-name="Contact"
+                            filter={resourceFilter}
+                            display-info={displayInfoResource}
+                            onchange={handleResourceChange}
+                            data-id="resourcePicker">
+                        </lightning-record-picker>
+                    </template>
 
-                  <lightning-record-picker
-                      key={regionPickerKey}
-                      label="Region"
-                      placeholder="Search Regions..."
-                      object-api-name="pse__Region__c"
-                      onchange={handleRegionChange}
-                      data-id="regionPicker">
-                  </lightning-record-picker>
+                    <template if:true={showRegionFilter}>
+                        <lightning-record-picker
+                            key={regionPickerKey}
+                            label="Region"
+                            placeholder="Search Regions..."
+                            object-api-name="pse__Region__c"
+                            onchange={handleRegionChange}
+                            data-id="regionPicker">
+                        </lightning-record-picker>
+                    </template>
 
-                  <lightning-record-picker
-                      key={practicePickerKey}
-                      label="Practice"
-                      placeholder="Search Practices..."
-                      object-api-name="pse__Practice__c"
-                      onchange={handlePracticeChange}
-                      data-id="practicePicker">
-                  </lightning-record-picker>
+                    <template if:true={showPracticeFilter}>
+                        <lightning-record-picker
+                            key={practicePickerKey}
+                            label="Practice"
+                            placeholder="Search Practices..."
+                            object-api-name="pse__Practice__c"
+                            onchange={handlePracticeChange}
+                            data-id="practicePicker">
+                        </lightning-record-picker>
+                    </template>
 
-                  <lightning-record-picker
-                      key={groupPickerKey}
-                      label="Group"
-                      placeholder="Search Groups..."
-                      object-api-name="pse__Grp__c"
-                      onchange={handleGroupChange}
-                      data-id="groupPicker">
-                  </lightning-record-picker>
+                    <template if:true={showGroupFilter}>
+                        <lightning-record-picker
+                            key={groupPickerKey}
+                            label="Group"
+                            placeholder="Search Groups..."
+                            object-api-name="pse__Grp__c"
+                            onchange={handleGroupChange}
+                            data-id="groupPicker">
+                        </lightning-record-picker>
+                    </template>
 
-                  <lightning-record-picker
-                      key={reportsToPickerKey}
-                      label="Reports To"
-                      placeholder="Search Contacts..."
-                      object-api-name="Contact"
-                      onchange={handleReportsToChange}
-                      data-id="reportsToPicker">
-                  </lightning-record-picker>
+                    <template if:true={showReportsToFilter}>
+                        <lightning-record-picker
+                            key={reportsToPickerKey}
+                            label="Reports To"
+                            placeholder="Search Contacts..."
+                            object-api-name="Contact"
+                            onchange={handleReportsToChange}
+                            data-id="reportsToPicker">
+                        </lightning-record-picker>
+                    </template>
 
-                  <lightning-combobox
-                      data-id="subCategoryComboBox"
-                      label="Sub-Category"
-                      placeholder="Select Sub-Category"
-                      options={subCategoryOptions}
-                      onchange={handleSubCategoryChange}>
-                  </lightning-combobox>
+                    <template if:true={showSubCategoryFilter}>
+                        <lightning-combobox
+                            data-id="subCategoryComboBox"
+                            label="Sub-Category"
+                            placeholder="Select Sub-Category"
+                            options={subCategoryOptions}
+                            onchange={handleSubCategoryChange}>
+                        </lightning-combobox>
+                    </template>
 
-                  <lightning-combobox
-                      data-id="roleComboBox"
-                      label="Role"
-                      placeholder="Select Role"
-                      options={roleOptions}
-                      onchange={handleRoleChange}>
-                  </lightning-combobox>
+                    <template if:true={showRoleFilter}>
+                        <lightning-combobox
+                            data-id="roleComboBox"
+                            label="Role"
+                            placeholder="Select Role"
+                            options={roleOptions}
+                            onchange={handleRoleChange}>
+                        </lightning-combobox>
+                    </template>
 
-
-                  <!-- Buttons -->
-                  <div class="slds-m-top_medium">
-                    <lightning-button-group>
-                      <lightning-button
-                          label="Apply"
-                          variant="brand"
-                          onclick={applyFilters}>
-                      </lightning-button>
-                      <lightning-button
-                          label="Clear"
-                          variant="neutral"
-                          onclick={clearFilters}>
-                      </lightning-button>
-                    </lightning-button-group>
-                  </div>
-              </div>
-          </div>
-      </div>
+                    <!-- Buttons -->
+                    <div class="slds-m-top_medium">
+                        <lightning-button-group>
+                            <lightning-button
+                                label="Apply"
+                                variant="brand"
+                                onclick={applyFilters}>
+                            </lightning-button>
+                            <lightning-button
+                                label="Clear"
+                                variant="neutral"
+                                onclick={clearFilters}>
+                            </lightning-button>
+                        </lightning-button-group>
+                    </div>
+                </div>
+            </div>
+        </template>
+    </div>
 
       <!-- Display the Selected Event Details -->
       <template if:true={selectedEvent}>
