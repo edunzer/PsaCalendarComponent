@@ -20,8 +20,37 @@ export default class PsaCalendar extends LightningElement {
     @track selectedSubCategory = null;
     @track selectedRole = null;
 
+    @api showResourceFilter;
+    @api showRegionFilter;
+    @api showPracticeFilter;
+    @api showGroupFilter;
+    @api showReportsToFilter;
+    @api showSubCategoryFilter;
+    @api showRoleFilter;
+
     @track subCategoryOptions = [];
     @track roleOptions = [];
+
+    get showFilters() {
+        return (
+            this.showResourceFilter ||
+            this.showRegionFilter ||
+            this.showPracticeFilter ||
+            this.showGroupFilter ||
+            this.showReportsToFilter ||
+            this.showSubCategoryFilter ||
+            this.showRoleFilter
+        );
+    }
+
+    // Dynamically adjust calendar width
+    get calendarClass() {
+        return this.showFilters ? 'slds-col slds-size_10-of-12' : 'slds-col slds-size_12-of-12';
+    }
+
+    get calendarStyle() {
+        return this.showFilters ? 'width: 85%;' : 'width: 100%;';
+    }
 
     connectedCallback() {
         // Fetch picklist options for Sub-Category and Role
