@@ -75,17 +75,18 @@
 
                   <!-- Buttons -->
                   <div class="slds-m-top_medium">
+                    <lightning-button-group>
                       <lightning-button
-                          label="Apply Filters"
+                          label="Apply"
                           variant="brand"
                           onclick={applyFilters}>
                       </lightning-button>
                       <lightning-button
-                          label="Clear Filters"
+                          label="Clear"
                           variant="neutral"
-                          onclick={clearFilters}
-                          class="slds-m-top_x-small">
+                          onclick={clearFilters}>
                       </lightning-button>
+                    </lightning-button-group>
                   </div>
               </div>
           </div>
