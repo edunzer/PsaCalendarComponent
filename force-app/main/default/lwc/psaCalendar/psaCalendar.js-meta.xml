@@ -16,6 +16,13 @@
                 description="Enter the name of the project to filter assignments."
                 required="false"
             />
+            <property name="showResourceFilter" type="Boolean" label="Show Resource Filter" default="true"/>
+            <property name="showRegionFilter" type="Boolean" label="Show Region Filter" default="true"/>
+            <property name="showPracticeFilter" type="Boolean" label="Show Practice Filter" default="true"/>
+            <property name="showGroupFilter" type="Boolean" label="Show Group Filter" default="true"/>
+            <property name="showReportsToFilter" type="Boolean" label="Show Reports To Filter" default="true"/>
+            <property name="showSubCategoryFilter" type="Boolean" label="Show Sub-Category Filter" default="true"/>
+            <property name="showRoleFilter" type="Boolean" label="Show Role Filter" default="true"/>
         </targetConfig>
     </targetConfigs>
 </LightningComponentBundle>
