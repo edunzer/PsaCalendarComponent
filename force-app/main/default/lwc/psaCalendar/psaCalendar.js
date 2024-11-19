@@ -73,12 +73,12 @@ export default class PsaCalendar extends LightningElement {
             { fieldPath: 'pse__Is_Resource__c', operator: 'eq', value: true },
             { fieldPath: 'pse__External_Resource__c', operator: 'eq', value: false }
         ]
-    };
+    };    
 
     displayInfoResource = {
         primaryField: 'Name',
-        additionalFields: ['Email']
-    };
+        additionalFields: ['Account.Name']
+    };    
 
     fullCalendarJsInitialised = false;
 

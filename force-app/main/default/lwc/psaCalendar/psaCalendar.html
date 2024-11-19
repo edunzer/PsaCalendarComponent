@@ -57,14 +57,17 @@
                     </template>
 
                     <template if:true={showReportsToFilter}>
-                        <lightning-record-picker
-                            key={reportsToPickerKey}
-                            label="Reports To"
-                            placeholder="Search Contacts..."
-                            object-api-name="Contact"
-                            onchange={handleReportsToChange}
-                            data-id="reportsToPicker">
-                        </lightning-record-picker>
+                      <lightning-record-picker
+                      key={reportsToPickerKey}
+                      label="Reports To"
+                      placeholder="Search Contacts..."
+                      object-api-name="Contact"
+                      filter={resourceFilter} 
+                      display-info={displayInfoResource}
+                      onchange={handleReportsToChange}
+                      data-id="reportsToPicker">
+                  </lightning-record-picker>
+                  
                     </template>
 
                     <template if:true={showSubCategoryFilter}>
