@@ -1,14 +1,33 @@
-import { LightningElement, api, track } from 'lwc';
+import { LightningElement, track, api } from 'lwc';
 import { loadScript, loadStyle } from 'lightning/platformResourceLoader';
 import FullCalendarJS from '@salesforce/resourceUrl/FullCalendarJS';
 import fetchAllAssignments from '@salesforce/apex/PsaCalendarService.fetchAllAssignments';
 
 export default class PsaCalendar extends LightningElement {
-    @api projectName; // Public property to accept project name
+    @api projectName;
     @track assignments = [];
     @track allEvents = [];
     @track selectedEvent;
     @track createRecord = false;
+
+    // Filters
+    @track selectedResourceId = null;
+    @track selectedRegionId = null;
+    @track selectedPracticeId = null;
+    @track selectedGroupId = null;
+
+    resourceFilter = {
+        criteria: [
+            { fieldPath: 'pse__Is_Resource__c', operator: 'eq', value: true },
+            { fieldPath: 'pse__External_Resource__c', operator: 'eq', value: false }
+        ]
+    };
+
+    displayInfoResource = {
+        primaryField: 'Name',
+        additionalFields: ['Email']
+    };
+
     fullCalendarJsInitialised = false;
 
     renderedCallback() {
@@ -23,19 +42,27 @@ export default class PsaCalendar extends LightningElement {
             loadScript(this, FullCalendarJS + '/fullcalendar.min.js'),
             loadStyle(this, FullCalendarJS + '/fullcalendar.min.css')
         ])
-        .then(() => {
-            this.fetchAssignments();
-        })
-        .catch(error => {
-            console.error('Error loading FullCalendar', error);
-        });
+            .then(() => {
+                this.fetchAssignments();
+            })
+            .catch(error => {
+                console.error('Error loading FullCalendar', error);
+            });
     }
 
     fetchAssignments() {
-        fetchAllAssignments({ projectName: this.projectName })
+
+        fetchAllAssignments({
+            projectName: this.projectName,
+            resourceId: this.selectedResourceId,
+            regionId: this.selectedRegionId,
+            practiceId: this.selectedPracticeId,
+            groupId: this.selectedGroupId
+        })
             .then(result => {
                 this.assignments = result;
-                this.prepareEvents();
+                this.prepareEvents(); // Prepare events from the fetched data
+                this.initialiseFullCalendarJs(); // Re-initialize the calendar with new events
             })
             .catch(error => {
                 console.error('Error fetching assignments', error);
@@ -44,27 +71,23 @@ export default class PsaCalendar extends LightningElement {
 
     prepareEvents() {
         this.allEvents = this.assignments.map(assignment => {
-            const startDate = assignment.pse__Start_Date__c; // Original start date
-            const endDate = assignment.pse__End_Date__c;     // Original end date
-
-            // Add one day to endDate for the exclusive end date
+            const startDate = assignment.pse__Start_Date__c;
+            const endDate = assignment.pse__End_Date__c;
             const dateParts = endDate.split('-');
             const date = new Date(dateParts[0], dateParts[1] - 1, dateParts[2]);
             date.setDate(date.getDate() + 1);
-            const formattedEndDate = date.toISOString().split('T')[0]; // 'YYYY-MM-DD'
+            const formattedEndDate = date.toISOString().split('T')[0];
 
             return {
                 id: assignment.Id,
                 title: assignment.Name,
-                start: startDate,            // Use the date string directly
-                end: formattedEndDate,       // Exclusive end date
+                start: startDate,
+                end: formattedEndDate,
                 allDay: true,
                 description: assignment.Description__c || '',
                 extendedProps: {
-                    resourceName: assignment.pse__Resource__r ? assignment.pse__Resource__r.Name : '',
-                    projectName: assignment.pse__Project__r ? assignment.pse__Project__r.Name : '',
-                    originalStartDate: startDate, // Include original start date
-                    originalEndDate: endDate      // Include original end date
+                    resourceName: assignment.pse__Resource__r?.Name || '',
+                    projectName: assignment.pse__Project__r?.Name || ''
                 }
             };
         });
@@ -73,7 +96,13 @@ export default class PsaCalendar extends LightningElement {
 
     initialiseFullCalendarJs() {
         const ele = this.template.querySelector('.fullcalendarjs');
-        // eslint-disable-next-line no-undef
+
+        // Destroy the existing calendar if it exists
+        if ($.fn.fullCalendar && $(ele).fullCalendar('getCalendar')) {
+            $(ele).fullCalendar('destroy');
+        }
+
+        // Initialize the calendar with updated events
         $(ele).fullCalendar({
             timezone: 'none',
             header: {
@@ -91,26 +120,19 @@ export default class PsaCalendar extends LightningElement {
         });
     }
 
-    eventClickHandler(event, jsEvent, view) {
-        const extendedProps = event.extendedProps || {};
-        const startDateStr = extendedProps.originalStartDate || '';
-        const endDateStr = extendedProps.originalEndDate || '';
-
-        // Append 'T00:00:00Z' to specify midnight UTC
-        const startDate = startDateStr ? startDateStr + 'T00:00:00Z' : '';
-        const endDate = endDateStr ? endDateStr + 'T00:00:00Z' : '';
-
+    // Event Handlers
+    eventClickHandler(event) {
         this.selectedEvent = {
             title: event.title,
-            start: startDate,
-            end: endDate,
-            description: event.description || '',
-            resourceName: extendedProps.resourceName || '',
-            projectName: extendedProps.projectName || ''
+            start: event.start,
+            end: event.end,
+            description: event.description,
+            resourceName: event.extendedProps.resourceName,
+            projectName: event.extendedProps.projectName
         };
     }
 
-    dayClickHandler(date, jsEvent, view) {
+    dayClickHandler() {
         this.createRecord = true;
     }
 
@@ -120,5 +142,58 @@ export default class PsaCalendar extends LightningElement {
 
     createCancel() {
         this.createRecord = false;
+    }
+
+    // Onchange Handlers for Filters
+    handleResourceChange(event) {
+        this.selectedResourceId = event.detail.recordId;
+    }
+
+    handleRegionChange(event) {
+        this.selectedRegionId = event.detail.recordId;
+    }
+
+    handlePracticeChange(event) {
+        this.selectedPracticeId = event.detail.recordId;
+    }
+
+    handleGroupChange(event) {
+        this.selectedGroupId = event.detail.recordId;
+    }
+
+    // Apply Filters Button
+    applyFilters() {
+        this.fetchAssignments();
+    }
+
+    // Clear Filters Button
+    clearFilters() {
+
+        // Clear selected IDs
+        this.selectedResourceId = null;
+        this.selectedRegionId = null;
+        this.selectedPracticeId = null;
+        this.selectedGroupId = null;
+
+        // Use clearSelection method on each lightning-record-picker
+        const resourcePicker = this.template.querySelector('[data-id="resourcePicker"]');
+        const regionPicker = this.template.querySelector('[data-id="regionPicker"]');
+        const practicePicker = this.template.querySelector('[data-id="practicePicker"]');
+        const groupPicker = this.template.querySelector('[data-id="groupPicker"]');
+
+        if (resourcePicker) {
+            resourcePicker.clearSelection();
+        }
+        if (regionPicker) {
+            regionPicker.clearSelection();
+        }
+        if (practicePicker) {
+            practicePicker.clearSelection();
+        }
+        if (groupPicker) {
+            groupPicker.clearSelection();
+        }
+        // Fetch all assignments without filters
+        this.fetchAssignments();
     }
 }

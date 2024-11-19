@@ -1,10 +1,70 @@
 <template>
     <lightning-card variant="Narrow" title="Full Calendar" icon-name="standard:event">
-      <div class="slds-grid">
-        <div class="slds-m-around_small">
-          <div id="calendar" class="fullcalendarjs"></div>
+      
+      <div class="slds-grid slds-wrap slds-m-around_small">
+        <!-- Calendar Section -->
+        <div class="slds-col slds-size_10-of-12" style="width: 85%;">
+            <div id="calendar" class="fullcalendarjs"></div>
         </div>
-      </div>
+
+        <!-- Filters Section -->
+        <div class="slds-col slds-size_2-of-12" style="width: 15%;">
+            <div class="slds-p-around_small">
+              <lightning-record-picker
+                  key={resourcePickerKey}
+                  label="Resource"
+                  placeholder="Search Resources..."
+                  object-api-name="Contact"
+                  filter={resourceFilter}
+                  display-info={displayInfoResource}
+                  onchange={handleResourceChange}
+                  data-id="resourcePicker">
+              </lightning-record-picker>
+
+              <lightning-record-picker
+                  key={regionPickerKey}
+                  label="Region"
+                  placeholder="Search Regions..."
+                  object-api-name="pse__Region__c"
+                  onchange={handleRegionChange}
+                  data-id="regionPicker">
+              </lightning-record-picker>
+
+              <lightning-record-picker
+                  key={practicePickerKey}
+                  label="Practice"
+                  placeholder="Search Practices..."
+                  object-api-name="pse__Practice__c"
+                  onchange={handlePracticeChange}
+                  data-id="practicePicker">
+              </lightning-record-picker>
+
+              <lightning-record-picker
+                  key={groupPickerKey}
+                  label="Group"
+                  placeholder="Search Groups..."
+                  object-api-name="pse__Grp__c"
+                  onchange={handleGroupChange}
+                  data-id="groupPicker">
+              </lightning-record-picker>
+              
+                <!-- Buttons -->
+                <div class="slds-m-top_medium">
+                    <lightning-button
+                        label="Apply Filters"
+                        variant="brand"
+                        onclick={applyFilters}>
+                    </lightning-button>
+                    <lightning-button
+                        label="Clear Filters"
+                        variant="neutral"
+                        onclick={clearFilters}
+                        class="slds-m-top_x-small">
+                    </lightning-button>
+                </div>
+            </div>
+        </div>
+    </div>
 
       <!-- Display the Selected Event Details -->
       <template if:true={selectedEvent}>
@@ -54,26 +114,5 @@
         <div class="slds-backdrop slds-backdrop_open"></div>
       </template>
 
-      <!-- Display the Create Record Modal -->
-      <template if:true={createRecord}>
-        <div class="custom-modal">
-          <section role="dialog" class="slds-modal slds-fade-in-open">
-            <div class="slds-modal__container">
-              <header class="slds-modal__header">
-                <span class="slds-modal__close"></span>
-                <h2 class="slds-text-heading_medium slds-hyphenate">Create Event</h2>
-              </header>
-              <div class="slds-modal__content slds-p-around_medium">
-                Event Form Here
-              </div>
-              <footer class="slds-modal__footer">
-                <lightning-button label="Cancel" title="Cancel" onclick={createCancel} class="slds-m-right_small"></lightning-button>
-                <lightning-button variant="brand" label="Save" title="Save"></lightning-button>
-              </footer>
-            </div>
-          </section>
-          <div class="slds-backdrop slds-backdrop_open"></div>
-        </div>
-      </template>
     </lightning-card>
 </template>
